@@ -17,6 +17,15 @@ const port = process.env.port || process.env.npm_config_port || 9527 // dev port
 
 // All configuration item explanations can be find in https://cli.vuejs.org/config/
 module.exports = {
+  transpileDependencies: [ //解决IE浏览器得es6转换成es5得问题（IE报错缺少':'）
+      // /[/\\]node_modules[/\\]dom7[/\\]/,
+      // /[/\\]node_modules[/\\]swiper[/\\]/,
+      /[/\\]node_modules[/\\]element-ui[/\\]packages[/\\]/,
+      /[/\\]node_modules[/\\]element-ui[/\\]src[/\\]/,
+      /[/\\]node_modules[/\\]capital-ui[/\\]src[/\\]/,
+      // /[/\\]node_modules[/\\]vux[/\\]/
+  ],
+  
   /**
    * You will need to set publicPath if you plan to deploy your site under a sub path,
    * for example GitHub Pages. If you plan to deploy your site to https://foo.github.io/bar/,
