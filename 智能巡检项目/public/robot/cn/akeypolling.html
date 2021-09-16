@@ -1,0 +1,368 @@
+<!doctype html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+    <meta http-equiv="Expires" content="0" />
+    <script>
+        document.write("<link type='text/css' href='../../static/demo.css?version=" + new Date().getTime() + "' rel='stylesheet' />");
+    </script>
+    <style>
+        .yincang{
+            display:none;
+        }
+        #divPlugin{
+            width: 800px;
+            height: 600px;
+        }
+        .robotconfig{
+            /* width:400px; */
+            width: 160px;
+            padding:10px;
+            border:1px solid #7F9DB9;
+            margin-top: 10px;
+        }
+        .robotconfig p{
+            line-height: 30px;
+        }
+        .robotconfig .btn{
+            width:50px;
+            height:22px;
+            line-height:18px;
+            opacity: .7;
+        }
+        .robotconfig .btn2{
+            width:70px;
+            height:30px;
+            line-height:18px;
+            opacity: .7;
+        }
+        .robotconfig dl{
+            display: flex;
+        }
+        .robotconfig dl dt{
+            width: 50px;
+            line-height: 22px;
+            margin-right: 4px;
+        }
+        .robotconfig dl .tupian{
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .robotconfig dl dt img{
+            padding-top: 7px;
+        }
+        .ptz{
+            width: 290px;
+            margin-top: 10px;
+        }
+        .ptz p{
+            line-height: 30px;
+        }
+        .ptz .btn{
+            width:50px;
+            height:22px;
+            line-height:18px;
+            opacity: .7;
+        }
+        .ptz .btn2{
+            width:50px;
+            height:30px;
+            line-height:18px;
+            opacity: .7;
+            background: #ffffff;
+            border: 1px solid #ccc;
+        }
+        .ptz dl{
+            display: flex;
+        }
+        .ptz dl dt{
+            width: 50px;
+            line-height: 22px;
+            margin-right: 4px;
+        }
+        .ptz dl .tupian{
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+        .ptz dl dt img{
+            padding-top: 7px;
+        }
+        .clear{
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+<div class="left">
+    <div id="divPlugin" class="plugin"></div>
+</div>
+<div class="clear"></div>
+<div class="left">
+    <fieldset class="login yincang">
+        <legend>登录</legend>
+        <table cellpadding="0" cellspacing="3" border="0">
+            <tr>
+                <!--本地-->
+                <td class="tt">IP地址</td>
+                <td><input id="loginip" type="text" class="txt" value="" /></td>
+                <td class="tt">端口号</td>
+                <td><input id="port" type="text" class="txt" value="" /></td> 
+            </tr>
+            <tr>
+                <td class="tt">用户名</td>
+                <td><input id="username" type="text" class="txt" value="admin" /></td>
+                <td class="tt">密码</td>
+                <td><input id="password" type="password" class="txt" value="ad53937301" /></td>
+            </tr>
+            <tr>
+                <td class="tt">设备端口</td>
+                <td colspan="2"><input id="deviceport" type="text" class="txt" />（可选参数）</td>
+                <td>
+                    窗口分割数&nbsp;
+                    <select class="sel2" onchange="changeWndNum(this.value);">
+                        <option value="1" selected>1x1</option>
+                        <option value="2">2x2</option>
+                        <option value="3">3x3</option>
+                        <option value="4">4x4</option>
+                    </select>
+                </td>
+            </tr> 
+            <tr>
+                <td class="tt">RTSP端口</td>
+                <td colspan="3"><input id="rtspport" type="text" class="txt" />（可选参数）</td>
+            </tr>
+            <tr>
+                <td colspan="4">
+                    <input type="button" class="btn" value="登录" onclick="clickLogin();" />
+                    <input type="button" class="btn" value="退出" onclick="clickLogout();" />
+                    <!-- <input type="button" class="btn2" value="获取基本信息" onclick="clickGetDeviceInfo();" /> -->
+                </td>
+            </tr>
+            <tr>
+                <td class="tt">已登录设备</td>
+                <td>
+                    <select id="ip" class="sel" onchange="getChannelInfo();getDevicePort();"></select>
+                </td>
+                <td class="tt">通道列表</td>
+                <td>
+                    <select id="channels" class="sel" onchange="getchangechannel(this.value);"></select>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset class="robotconfig yincang">
+        <p>机器人运动控制</p>
+        <table cellpadding="0" cellspacing="3" border="0" class="left">
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <!-- <dl>
+                        <dt></dt>
+                        <dt class="tupian" onmousedown="mouseDownRBTControl(7);">
+                            <img src="../../static/image/上.png">
+                        </dt>
+                        <dt></dt>
+                    </dl> -->
+                    <!-- <input type="button" class="btn" value="左上" onmousedown="mouseDownRBTControl(5);" onmouseup="mouseUpRBTControl();" /> -->
+                    <!-- <input type="button" class="btn" value="上" onmousedown="mouseDownRBTControl(7);"/> -->
+                    <!--  onmouseup="mouseUpRBTControl(6);" -->
+                    <!-- <input type="button" class="btn" value="右上" onmousedown="mouseDownRBTControl(7);" onmouseup="mouseUpRBTControl();"  /> -->
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <!-- <dl>
+                        <dt class="tupian" onmousedown="mouseDownRBTControl(1);">
+                            <img src="../../static/image/左.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownRBTControl(99);">
+                            <img src="../../static/image/暂停.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownRBTControl(3);">
+                            <img src="../../static/image/右.png">
+                        </dt>
+                    </dl> -->
+                    <!-- <input type="button" class="btn" value="左" onmousedown="mouseDownRBTControl(1);" />
+                    <input type="button" class="btn" value="暂停" onmousedown="mouseDownRBTControl(99);" />
+                    <input type="button" class="btn" value="右" onmousedown="mouseDownRBTControl(3);" /> -->
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center;">
+                    <!-- <dl>
+                        <dt></dt>
+                        <dt class="tupian" onmousedown="mouseDownRBTControl(9);">
+                            <img src="../../static/image/下.png">
+                        </dt>
+                        <dt></dt>
+                    </dl>  -->
+                    <!-- <input type="button" class="btn" value="下" onmousedown="mouseDownRBTControl(9);"/> -->
+                </td>
+            </tr>
+        </table>
+        <table cellpadding="0" cellspacing="3" border="0" class="left yincang">
+            <tr>
+                <td>
+                    <input type="button" class="btn2" value="一键巡检" onclick="Akeyinspection('Start');" />
+                    <input type="button" class="btn2" value="暂停巡检" onclick="Suspendedinspection('Pause');" />
+                    <input type="button" class="btn2" value="继续巡检" onclick="Continuetoinspection('Resume');" />
+                </td>
+            </tr>
+            <!-- <tr>
+                <td>
+                    <input type="button" class="btn2" value="自动巡检" onclick="Automaticinspection();" style="display: none;" />
+                    <input type="button" class="btn2" value="手动巡检" onclick="Manualinspection();" />
+                </td>
+            </tr> -->
+            <tr>
+                <td>
+                    <input type="button" class="btn2" value="一键复位" onclick="Amasterreset();" />
+                    <input type="button" class="btn2" value="紧急停止" onclick="Emergencystop();" />
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset class="ipchannel yincang">
+        <legend>数字通道</legend>
+        <table width="100%" cellpadding="0" cellspacing="3" border="0">
+            <tr>
+                <td><input type="button" class="btn" value="获取数字通道列表" onclick="clickGetDigitalChannelInfo();" /></td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="digitaltdiv">
+                        <table id="digitalchannellist" class="digitalchannellist" cellpadding="0" cellspacing="0" border="0"></table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+</div>
+<div class="left">
+    <fieldset class="preview  yincang">
+        <legend>预览</legend>
+        <table cellpadding="0" cellspacing="3" border="0">
+            <tr>
+                <td class="tt">码流类型</td>
+                <td>
+                    <select id="streamtype" class="sel">
+                        <option value="1">主码流</option>
+                        <option value="2">子码流</option>
+                        <option value="3">第三码流</option>
+                        <option value="4">转码码流</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="button" class="btn" value="开始预览" onclick="clickStartRealPlay();" />
+                    <input type="button" class="btn" value="停止预览" onclick="clickStopRealPlay();" />
+                </td>
+            </tr>
+        </table>
+    </fieldset>
+    <fieldset class="ptz yincang">
+        <p>云台控制</p>
+        <table cellpadding="0" cellspacing="3" border="0" class="left">
+            <tr>
+                <td style="text-align: center;">
+                    <!-- <dl>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(5);" onmouseup="mouseUpPTZControl();">
+                            <img src="../../static/image/左上.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(1);" onmouseup="mouseUpPTZControl();" >
+                            <img src="../../static/image/上.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(7);" onmouseup="mouseUpPTZControl();" >
+                            <img src="../../static/image/右上.png">
+                        </dt>
+                    </dl> -->
+                    <!-- <input type="button" class="btn" value="左上" onmousedown="mouseDownPTZControl(5);" onmouseup="mouseUpPTZControl();" />
+                    <input type="button" class="btn" value="上" onmousedown="mouseDownPTZControl(1);" onmouseup="mouseUpPTZControl();" />
+                    <input type="button" class="btn" value="右上" onmousedown="mouseDownPTZControl(7);" onmouseup="mouseUpPTZControl();" /> -->
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <!-- <dl>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(3);" onmouseup="mouseUpPTZControl();">
+                            <img src="../../static/image/左.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(9);" onmouseup="mouseUpPTZControl();" >
+                            <img src="../../static/image/auto.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(4);" onmouseup="mouseUpPTZControl();" >
+                            <img src="../../static/image/右.png">
+                        </dt>
+                    </dl> -->
+                    <!-- <input type="button" class="btn" value="左" onmousedown="mouseDownPTZControl(3);" onmouseup="mouseUpPTZControl();" />
+                    <input type="button" class="btn" value="自动" onclick="mouseDownPTZControl(9);" />
+                    <input type="button" class="btn" value="右" onmousedown="mouseDownPTZControl(4);" onmouseup="mouseUpPTZControl();" /> -->
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center;">
+                    <!-- <dl>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(6);" onmouseup="mouseUpPTZControl();">
+                            <img src="../../static/image/左下.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(2);" onmouseup="mouseUpPTZControl();">
+                            <img src="../../static/image/下.png">
+                        </dt>
+                        <dt class="tupian" onmousedown="mouseDownPTZControl(8);" onmouseup="mouseUpPTZControl();">
+                            <img src="../../static/image/右下.png">
+                        </dt>
+                    </dl> -->
+                    <!-- <input type="button" class="btn" value="左下" onmousedown="mouseDownPTZControl(6);" onmouseup="mouseUpPTZControl();" />
+                    <input type="button" class="btn" value="下" onmousedown="mouseDownPTZControl(2);" onmouseup="mouseUpPTZControl();" />
+                    <input type="button" class="btn" value="右下" onmousedown="mouseDownPTZControl(8);" onmouseup="mouseUpPTZControl();" /> -->
+                </td>
+            </tr>
+        </table>
+        <!-- <table cellpadding="0" cellspacing="3" border="0" class="left">
+            <tr>
+                <td><input type="button" class="btn2" value="变倍+" onmousedown="PTZZoomIn()" onmouseup="PTZZoomStop()"></td>
+                <td><input type="button" class="btn2" value="变倍-" onmousedown="PTZZoomout()" onmouseup="PTZZoomStop()"></td>
+            </tr>
+            <tr>
+                <td><input type="button" class="btn2" value="变焦+" onmousedown="PTZFocusIn()" onmouseup="PTZFoucusStop()"></td>
+                <td><input type="button" class="btn2" value="变焦-" onmousedown="PTZFoucusOut()" onmouseup="PTZFoucusStop()"></td>
+            </tr>
+            <tr>
+                <td><input type="button" class="btn2" value="光圈+" onmousedown="PTZIrisIn()" onmouseup="PTZIrisStop()"></td>
+                <td><input type="button" class="btn2" value="光圈-" onmousedown="PTZIrisOut()" onmouseup="PTZIrisStop()"></td>
+            </tr>
+        </table> -->
+        <table cellpadding="0" cellspacing="3" border="0" class="left yincang">
+            <!-- <tr>
+                <td class="tt">云台速度</td>
+                <td>
+                    <select id="ptzspeed" class="sel">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4" selected>4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                </td>
+            </tr> -->
+            <!-- <tr>
+                <td class="tt">预置点号</td>
+                <td><input id="preset" type="text" class="txt" value="1" /></td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <input type="button" class="btn" value="设置" onclick="clickSetPreset();" />
+                    <input type="button" class="btn" value="调用" onclick="clickGoPreset();" />
+                </td>
+            </tr> -->
+        </table>
+    </fieldset>
+</div>
+</body>
+<script src="../../static/jquery-1.7.1.min.js"></script>
+<script id="videonode" src="../../static/codebase/webVideoCtrl.js"></script>
+<script src="./akeypolling.js"></script>
+</html>

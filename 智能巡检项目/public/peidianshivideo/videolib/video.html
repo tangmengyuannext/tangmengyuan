@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>播放器</title>
+        <!-- 导入的videojs是7.0版本以上的，集成VHS协议库，可播放HLS流媒体视频 -->
+        <!-- <link href="videolib/css/video-js.min.css" rel="stylesheet" type="text/css"> -->
+		<link rel="stylesheet" type="text/css" href="css/video-js.min.css"/>
+        <!-- <script src="videolib/js/video.min.js"></script> -->
+		<script src="js/video.min.js"></script>
+        <!-- 引入的videojs-flash.js插件主要是为播放rtmp视频流-->
+        <!-- <script src="videolib/videojs-flash.min.js"></script> -->
+		<script src="videojs-flash.min.js"></script>
+    </head>
+    <body>
+        <!-- RTMP直播源地址-->
+       <!-- <video id='myvideo' width=960 height=540 class="video-js vjs-default-skin" autoplay preload="auto">
+            <source src="rtmp://58.200.131.2:1935/livetv/hunantv">    
+        </video> -->
+		<div id="cartoonRTMP1"></div>
+        <script> 
+		 // var player = videojs('myvideo', {}, function(){console.log('videojs播放器初始化成功')})
+		 //     player.play();
+		var rtmpurl = "rtmp://58.200.131.2:1935/livetv/hunantv";
+		var videoHtml = '<video id="myvideo" class="video-js vjs-default-skin" autoplay windth="350px" height="350px"'
+			+'>'
+			+'<source src="'+ rtmpurl +'" type="video/rtmp">'
+			+'</video>'
+		// $('#cartoonRTMP1').append(videoHtml);
+		document.getElementById("cartoonRTMP1").innerHTML = videoHtml;
+		var myPlayer1 = videojs('myvideo');
+		videojs("myvideo").ready(function(){
+			var myPlayer1 = this;
+			myPlayer1.play();
+		});
+		
+			
+        </script>
+    </body>
+</html>

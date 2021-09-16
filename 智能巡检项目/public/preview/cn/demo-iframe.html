@@ -1,0 +1,376 @@
+<!doctype html>
+<html>
+
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+    <meta http-equiv="Expires" content="0" />
+    <style type="text/css">
+        iframe {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            width: 200px;
+            height: 150px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <iframe src="iframe.html" frameborder="0" id="iframeOne" style="width: 200px;height: 150px;"></iframe>
+        <iframe src="iframe.html" frameborder="0" id="iframeTwo" style="width: 200px;height: 150px;"></iframe>
+    </div>
+    <div>
+        <iframe src="iframe.html" frameborder="0" id="iframeThree" style="width: 200px;height: 150px;"></iframe>
+        <iframe src="iframe.html" frameborder="0" id="iframeFour" style="width: 200px;height: 150px;"></iframe>
+    </div>
+    <!-- 海康需要的js -->
+    <script src="../../static/jquery-1.7.1.min.js"></script>
+    <script id="videonode" src="../../static/codebase/webVideoCtrl.js"></script>
+    <script>
+
+        var g_aIframe = $("iframe");
+        var Bearers = "Bearer " + window.top.sessionStorage.getItem('brearer');
+        var httpUrl = window.top.sessionStorage.getItem('httpTempUrl');
+        var windowOneData = {}, windowTwoData = {}, windowThreeData = {}, windowFourData = {};
+        var cameraAllList = [];
+        var userData = {
+            userName: 'admin',
+            password: 'ad53937301',
+            port: 80
+        };
+
+        $(document).ready(function () {
+            console.log('加载啦');
+            $.ajax({
+                url: httpUrl + "/device/camera/list",
+                type: "get",
+                dataType: 'json',
+                data: {},
+                headers: { 'Content-Type': 'application/json;charset=utf8', 'Authorization': Bearers },
+                success: function (data) {
+                    console.log("摄像头列表", data);
+                    cameraAllList = data.rows;
+                    $.ajax({
+                        url: httpUrl +  "/largescreen/getCameraSelectionDefault",
+                        type: "get",
+                        dataType: 'json',
+                        data: {},
+                        headers: { 'Content-Type': 'application/json;charset=utf8', 'Authorization': Bearers },
+                        success: function (data) {
+                            console.log("默认位置", data);
+                            var ids = [];
+                            if (data.data.defaultValue !== null && data.data.defaultValue !== '' && data.data.defaultValue !== undefined) { // 有默认设置
+                                ids = data.data.defaultValue.split(',');
+                            } else {
+                                // 如果没有默认设置，则取所有摄像头的前四个显示
+                                ids = [cameraAllList[0].cameraId, cameraAllList[1].cameraId, cameraAllList[2].cameraId, cameraAllList[3].cameraId]
+                            }
+                            for (var i = 0; i < cameraAllList.length; i++) {
+                                if (cameraAllList[i].cameraId == ids[0]) {
+                                    if (cameraAllList[i].username !== null && cameraAllList[i].username !== '' && cameraAllList[i].username !== undefined) {
+                                        windowOneData = {
+                                            userName: cameraAllList[i].username,
+                                            password: cameraAllList[i].password,
+                                            port: cameraAllList[i].port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    } else { // 返回数据无用户名密码
+                                        windowOneData = {
+                                            userName: userData.userName,
+                                            password: userData.password,
+                                            port: userData.port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    }
+                                } else if (cameraAllList[i].cameraId == ids[1]) {
+                                    if (cameraAllList[i].username !== null && cameraAllList[i].username !== '' && cameraAllList[i].username !== undefined) {
+                                        windowTwoData = {
+                                            userName: cameraAllList[i].username,
+                                            password: cameraAllList[i].password,
+                                            port: cameraAllList[i].port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    } else { // 返回数据无用户名密码
+                                        windowTwoData = {
+                                            userName: userData.userName,
+                                            password: userData.password,
+                                            port: userData.port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    }
+                                } else if (cameraAllList[i].cameraId == ids[2]) {
+                                    if (cameraAllList[i].username !== null && cameraAllList[i].username !== '' && cameraAllList[i].username !== undefined) {
+                                        windowThreeData = {
+                                            userName: cameraAllList[i].username,
+                                            password: cameraAllList[i].password,
+                                            port: cameraAllList[i].port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    } else { // 返回数据无用户名密码
+                                        windowThreeData = {
+                                            userName: userData.userName,
+                                            password: userData.password,
+                                            port: userData.port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    }
+                                } else if (cameraAllList[i].cameraId == ids[3]) {
+                                    if (cameraAllList[i].username !== null && cameraAllList[i].username !== '' && cameraAllList[i].username !== undefined) {
+                                        windowFourData = {
+                                            userName: cameraAllList[i].username,
+                                            password: cameraAllList[i].password,
+                                            port: cameraAllList[i].port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    } else { // 返回数据无用户名密码
+                                        windowFourData = {
+                                            userName: userData.userName,
+                                            password: userData.password,
+                                            port: userData.port,
+                                            ip: cameraAllList[i].ip
+                                        }
+                                    }
+                                }
+                            }
+                            iFrameOneLoad();
+                            iFrameTwoLoad();
+                            iFrameThreeLoad();
+                            iFrameFourLoad();
+                        },
+                        error: function (status) {
+                            //失败后执行的代码
+                            console.log("请求默认摄像头列表失败", status)
+                        }
+                    });
+                },
+                error: function (status) {
+                    //失败后执行的代码
+                    console.log("请求摄像头列表失败", status)
+                }
+            });
+        })
+
+        $(function () {
+            var iRet = WebVideoCtrl.I_CheckPluginInstall();
+            if (-1 == iRet) {
+                alert("请先安装WebComponentsKit.exe");
+                return;
+            }
+
+            $(window).unload(function () {
+                // var oIframeOne = document.getElementById('iframeOne');
+                // getWebVideoCtrl(oIframeOne).I_Stop();
+                // var oIframeTwo = document.getElementById('iframeTwo');
+                // getWebVideoCtrl(oIframeTwo).I_Stop();
+                // var oIframeThree = document.getElementById('iframeThree');
+                // getWebVideoCtrl(oIframeThree).I_Stop();
+                // var oIframeFour = document.getElementById('iframeFour');
+                // getWebVideoCtrl(oIframeFour).I_Stop();
+                $.each(g_aIframe, function (i, oIframe) {
+                    getWebVideoCtrl(oIframe).I_Stop();
+                });
+            });
+        });
+
+        var iLoadedCount = 0;
+
+        function iFrameOneLoad() {
+            console.log('监控1开始登录');
+            // var szIP = window.top.sessionStorage.getItem('windowOne');
+            var oLiveView = {
+                iProtocol: 1,            // protocol 1��http, 2:https
+                szIP: windowOneData.ip,    // protocol ip
+                szPort: windowOneData.port,            // protocol port
+                szUsername: windowOneData.userName,     // device username
+                szPassword: windowOneData.password, // device password
+                iStreamType: 2,          // stream 1��main stream  2��sub-stream  3��third stream  4��transcode stream
+                iChannelID: 1,           // channel no
+                bZeroChannel: false      // zero channel
+            };
+            var oIframe = document.getElementById('iframeOne');
+            var oWebVideoCtrl = getWebVideoCtrl(oIframe);
+            oWebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
+                success: function (xmlDoc) {
+                    // ��ʼԤ��
+                    var szDeviceIdentify = oLiveView.szIP + "_" + oLiveView.szPort;
+                    console.log('监控1登录成功');
+                    console.log(oLiveView);
+                    setTimeout(function () {
+                        // oWndInfo = WebVideoCtrl.I_GetWindowStatus(windowIndex);
+                        oWebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
+                            // iWindIndex: windowIndex,
+                            iStreamType: oLiveView.iStreamType,
+                            iChannelID: oLiveView.iChannelID,
+                            bZeroChannel: oLiveView.bZeroChannel
+                        });
+                    }, 1000);
+                },
+                error: function (status, xmlDoc) {
+                    console.log("监控1======== 登录失败！", status, xmlDoc);
+                    console.log(oLiveView);
+                }
+            });
+        }
+        function iFrameTwoLoad() {
+            console.log('监控2开始登录');
+            // var szIP = window.top.sessionStorage.getItem('windowTwo');
+            var oLiveView = {
+                iProtocol: 1,            // protocol 1��http, 2:https
+                szIP: windowTwoData.ip,    // protocol ip
+                szPort: windowTwoData.port,            // protocol port
+                szUsername: windowTwoData.userName,     // device username
+                szPassword: windowTwoData.password, // device password
+                iStreamType: 2,          // stream 1��main stream  2��sub-stream  3��third stream  4��transcode stream
+                iChannelID: 1,           // channel no
+                bZeroChannel: false      // zero channel
+            };
+            var oIframe = document.getElementById('iframeTwo');
+            var oWebVideoCtrl = getWebVideoCtrl(oIframe);
+            oWebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
+                success: function (xmlDoc) {
+                    var szDeviceIdentify = oLiveView.szIP + "_" + oLiveView.szPort;
+                    console.log('监控2登录成功');
+                    console.log(oLiveView);
+                    setTimeout(function () {
+                        // oWndInfo = WebVideoCtrl.I_GetWindowStatus(windowIndex);
+                        oWebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
+                            // iWindIndex: windowIndex,
+                            iStreamType: oLiveView.iStreamType,
+                            iChannelID: oLiveView.iChannelID,
+                            bZeroChannel: oLiveView.bZeroChannel
+                        });
+                    }, 1000);
+                },
+                error: function (status, xmlDoc) {
+                    console.log("监控2======== 登录失败！", status, xmlDoc);
+                    console.log(oLiveView);
+                }
+            });
+        }
+        function iFrameThreeLoad() {
+            console.log('监控3开始登录');
+            // var szIP = window.top.sessionStorage.getItem('windowThree');
+            var oLiveView = {
+                iProtocol: 1,            // protocol 1��http, 2:https
+                szIP: windowThreeData.ip,    // protocol ip
+                szPort: windowThreeData.port,            // protocol port
+                szUsername: windowThreeData.userName,     // device username
+                szPassword: windowThreeData.password, // device password
+                iStreamType: 2,          // stream 1��main stream  2��sub-stream  3��third stream  4��transcode stream
+                iChannelID: 1,           // channel no
+                bZeroChannel: false      // zero channel
+            };
+            var oIframe = document.getElementById('iframeThree');
+            var oWebVideoCtrl = getWebVideoCtrl(oIframe);
+            // ��¼�豸
+            oWebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
+                success: function (xmlDoc) {
+                    // ��ʼԤ��
+                    var szDeviceIdentify = oLiveView.szIP + "_" + oLiveView.szPort;
+                    console.log('监控3登录成功');
+                    console.log(oLiveView);
+                    setTimeout(function () {
+                        // oWndInfo = WebVideoCtrl.I_GetWindowStatus(windowIndex);
+                        oWebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
+                            // iWindIndex: windowIndex,
+                            iStreamType: oLiveView.iStreamType,
+                            iChannelID: oLiveView.iChannelID,
+                            bZeroChannel: oLiveView.bZeroChannel
+                        });
+                    }, 1000);
+                },
+                error: function (status, xmlDoc) {
+                    console.log("监控3======== 登录失败！", status, xmlDoc);
+                    console.log(oLiveView);
+                }
+            });
+        }
+        function iFrameFourLoad() {
+            console.log('监控4开始登录');
+            // var szIP = window.top.sessionStorage.getItem('windowFour');
+            var oLiveView = {
+                iProtocol: 1,            // protocol 1��http, 2:https
+                szIP: windowFourData.ip,    // protocol ip
+                szPort: windowFourData.port,            // protocol port
+                szUsername: windowFourData.userName,     // device username
+                szPassword: windowFourData.password, // device password
+                iStreamType: 2,          // stream 1��main stream  2��sub-stream  3��third stream  4��transcode stream
+                iChannelID: 1,           // channel no
+                bZeroChannel: false      // zero channel
+            };
+            var oIframe = document.getElementById('iframeFour');
+            var oWebVideoCtrl = getWebVideoCtrl(oIframe);
+            oWebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
+                success: function (xmlDoc) {
+                    var szDeviceIdentify = oLiveView.szIP + "_" + oLiveView.szPort;
+                    console.log('监控4登录成功');
+                    console.log(oLiveView);
+                    setTimeout(function () {
+                        // oWndInfo = WebVideoCtrl.I_GetWindowStatus(windowIndex);
+                        oWebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
+                            // iWindIndex: windowIndex,
+                            iStreamType: oLiveView.iStreamType,
+                            iChannelID: oLiveView.iChannelID,
+                            bZeroChannel: oLiveView.bZeroChannel
+                        });
+                    }, 1000);
+                },
+                error: function (status, xmlDoc) {
+                    console.log("监控4======== 登录失败！", status, xmlDoc);
+                    console.log(oLiveView);
+                }
+            });
+        }
+
+        function getWebVideoCtrl(oIframe) {
+            return oIframe.contentWindow.WebVideoCtrl;
+        }
+
+        // 废弃
+        function iframeLoaded(index) {
+            iLoadedCount++;
+
+            if (4 === iLoadedCount) {
+                var oLiveView = {
+                    iProtocol: 1,            // protocol 1��http, 2:https
+                    szIP: "192.168.1.23",    // protocol ip
+                    szPort: "80",            // protocol port
+                    szUsername: "admin",     // device username
+                    szPassword: "ad53937301", // device password
+                    iStreamType: 2,          // stream 1��main stream  2��sub-stream  3��third stream  4��transcode stream
+                    iChannelID: 1,           // channel no
+                    bZeroChannel: false      // zero channel
+                };
+                let s = 0;
+                $.each(g_aIframe, function (i, oIframe) {
+                    var oWebVideoCtrl = getWebVideoCtrl(oIframe);
+                    oWebVideoCtrl.I_Login(oLiveView.szIP, oLiveView.iProtocol, oLiveView.szPort, oLiveView.szUsername, oLiveView.szPassword, {
+                        success: function (xmlDoc) {
+                            var szDeviceIdentify = oLiveView.szIP + "_" + oLiveView.szPort;
+                            console.log('登录成功');
+                            console.log(oLiveView);
+                            setTimeout(function () {
+                                // oWndInfo = WebVideoCtrl.I_GetWindowStatus(windowIndex);
+                                oWebVideoCtrl.I_StartRealPlay(oLiveView.szIP, {
+                                    // iWindIndex: windowIndex,
+                                    iStreamType: oLiveView.iStreamType,
+                                    iChannelID: oLiveView.iChannelID,
+                                    bZeroChannel: oLiveView.bZeroChannel
+                                });
+                            }, 1000);
+                        },
+                        error: function (status, xmlDoc) {
+                            console.log(" 登录失败！", status, xmlDoc);
+                        }
+                    });
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>

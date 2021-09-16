@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>矩形绘制工具</title>
+    <style type="text/css">
+        .box {
+            background: #f00;
+            width: 0px;
+            height: 0px;
+            position: absolute;
+            opacity: 0.5;
+            cursor: move;
+        }
+        .droptarget {
+            float: left;
+            width: 100px;
+            height: 1000px;
+            margin: 15px;
+            padding: 10px;
+            border: 1px solid #aaaaaa;
+        }
+		#coordiv{
+			width: 400px;
+			height: 300px;
+		}
+		#imgurl{
+			width: 400px;
+			height: 300px;
+		}
+    </style>
+</head>
+
+<body>
+    <script src="./scripts/jquery.js"></script>
+    <script>//框内移动显示坐标
+        function cnvs_getCoordinates(e)
+        {
+            x=e.pageX-e.target.offsetLeft;//不能用clientX,pageX为文档坐标,clientX表示浏览器界面坐标,会随滚动条改变
+            y=e.pageY-e.target.offsetTop;
+            // document.getElementById("xycoordinates").innerHTML="Coordinates: (" + x + "," + y + ")";
+        }
+        function cnvs_clearCoordinates()//出框后不显示坐标
+        {
+            // document.getElementById("xycoordinates").innerHTML="";
+        }
+    </script>
+    <div id="coordiv" onmousemove="cnvs_getCoordinates(event)" onmouseout="cnvs_clearCoordinates()" >
+        <img src="" id="imgurl" ondragstart="return false;" >
+
+        <script type="text/javascript">
+            var bgimg = "";
+            $(document).ready(function(){
+                console.log(window.top.sessionStorage.getItem("biaozhuimgurl"),"------图标url");
+                bgimg = window.top.sessionStorage.getItem("biaozhuimgurl");
+                $("#imgurl").attr("src",bgimg);
+            })
+            var xydata=[]; xyobj = {};
+            window.onload = function(e)
+            {
+                e = e || window.event;
+                // startX, startY 为鼠标点击时初始坐标
+                // diffX, diffY 为鼠标初始坐标与 box 左上角坐标之差，用于拖动
+                var startX, startY, diffX, diffY;
+                // 是否拖动，初始为 false
+                var dragging = false;
+
+                var coordiv = document.getElementById('coordiv');
+
+                // 鼠标按下
+                document.onmousedown = function(e)
+                {
+                    startX = e.pageX;
+                    startY = e.pageY;
+
+                    // 如果鼠标在 box 上被按下,坐标判定防止在box之外
+                    if(startY<=coordiv.offsetTop+coordiv.offsetHeight && startY>=coordiv.offsetTop && startX>=coordiv.offsetLeft && startX<=coordiv.offsetLeft+coordiv.offsetWidth)
+                    {
+                        if(e.target.className.match(/box/))
+                        {
+                            // 允许拖动
+                            dragging = true;
+
+                            // 设置当前 box 的 id 为 moving_box
+                            if(document.getElementById("moving_box") !== null)
+                            {
+                                document.getElementById("moving_box").removeAttribute("id");
+                            }
+                            e.target.id = "moving_box";
+
+                            // 计算坐标差值
+                            diffX = startX - e.target.offsetLeft;
+                            diffY = startY - e.target.offsetTop;
+                        }
+                        else
+                        {
+                            // 在页面创建 box
+                            var active_box = document.createElement("div");
+                            active_box.id = "active_box";
+                            active_box.className = "box";
+                            active_box.style.top = startY + 'px';
+                            active_box.style.left = startX + 'px';
+                            active_box.setAttribute("ondrop","drop(event)");
+                            active_box.setAttribute("ondragover","allowDrop(event)");
+                            document.body.appendChild(active_box);
+                            active_box = null;
+                        }
+                    }
+
+                };
+
+                // 鼠标移动
+                document.onmousemove = function(e)
+                {
+                    if(e.pageY <= coordiv.offsetTop+coordiv.offsetHeight && e.pageY >= coordiv.offsetTop && e.pageX >= coordiv.offsetLeft && e.pageX <= coordiv.offsetLeft+coordiv.offsetWidth)
+                    {
+                        // 更新 box 尺寸
+                        if(document.getElementById("active_box") !== null)//如果document中有active_box,就改变box大小
+                        {
+                            var ab = document.getElementById("active_box");
+                            ab.style.width = e.pageX - startX + 'px';
+                            ab.style.height = e.pageY - startY + 'px';
+                        }
+
+                        // 移动，更新 box 坐标
+                        if(document.getElementById("moving_box") !== null && dragging)
+                        {
+                            var mb = document.getElementById("moving_box");
+                            var xy_div = document.getElementById(mb.style.left.substring(0,mb.style.left.length-2)+mb.style.top.substring(0,mb.style.top.length-2));
+
+                            var tmx = e.pageX - diffX;
+                            var tmy = e.pageY - diffY;
+
+
+                            if(tmx + mb.offsetWidth <= coordiv.offsetLeft+coordiv.offsetWidth && tmx >= coordiv.offsetLeft && tmy + mb.offsetHeight <= coordiv.offsetTop+coordiv.offsetHeight && tmy >= coordiv.offsetTop)
+                            {
+                                mb.style.top = e.pageY - diffY + 'px';
+                                mb.style.left = e.pageX - diffX + 'px';
+
+                                if(xy_div !== null)
+                                {
+                                    var new_x = mb.style.left.substring(0, mb.style.left.length - 2);
+                                    var new_y = mb.style.top.substring(0,mb.style.top.length - 2);
+                                    xy_div.id = new_x+new_y;
+                                    new_x-=coordiv.offsetLeft;
+                                    new_y-=coordiv.offsetTop;
+                                    var new_r = parseInt(mb.style.width.substring(0,mb.style.width.length-2))+parseInt(new_x)-coordiv.offsetLeft;
+                                    var new_b = parseInt(mb.style.height.substring(0,mb.style.height.length-2))+parseInt(new_y)-coordiv.offsetTop;//"[ left: "+ new_x +", top: "+ new_y + ", right: " + new_r +" , bottom: "+ new_b +" ]";
+                                    xy_div.innerText = new_x +","+ new_y + "," + new_r +","+ new_b;
+                                    var input_div = document.getElementById("x_y")
+                                    input_div.value=xy_div.innerHTML
+                                }
+                            }
+                        }
+                    }
+                };
+
+                // 鼠标抬起
+                document.onmouseup = function(e)
+                {
+                    // 禁止拖动
+                    dragging = false;
+                    if(document.getElementById("active_box") !== null)
+                    {
+                        var ab = document.getElementById("active_box");
+                        ab.removeAttribute("id");
+                        // 如果长宽均小于 3px，移除 box
+                        if(ab.offsetWidth < 10 || ab.offsetHeight < 10)
+                        {
+                            document.body.removeChild(ab);
+                        }
+                        if(ab.offsetHeight >=10 && ab.offsetHeight >=10)
+                        {
+                            // var xy_div = document.createElement("div");
+                            // xy_div.id=startX.toString()+startY.toString();
+                            // document.body.appendChild(xy_div);
+                            // xy_div.innerHTML = (startX-coordiv.offsetLeft) + "," + (startY-coordiv.offsetTop) + "," + (e.pageX-coordiv.offsetLeft) + "," + (e.pageY-coordiv.offsetTop);
+                            xyobj = {
+                                x:startX-coordiv.offsetLeft,
+                                y:startY-coordiv.offsetTop,
+                                ex:e.pageX-coordiv.offsetLeft,
+                                ey:e.pageY-coordiv.offsetTop
+                            }
+                            xydata.push(xyobj);
+                            console.log(xydata,'---获取左上角右下角xy坐标');
+                            window.parent.postMessage({parentval:xydata},'*');
+                            window.sessionStorage.setItem("biaozhuxy",JSON.stringify(xydata));
+                            // var input_div = document.getElementById("x_y")
+                            // input_div.value=(startX-coordiv.offsetLeft) + "," + (startY-coordiv.offsetTop) + "," + (e.pageX-coordiv.offsetLeft) + "," + (e.pageY-coordiv.offsetTop)
+							// console.log(xy_div.innerHTML);
+                        }
+                    }
+                };
+
+                //双击鼠标
+                document.ondblclick = function (e)
+                {
+                    if(e.target.className.match(/box/))
+                    {
+                        if (document.getElementById("del_box") !== null)
+                        {
+                            document.getElementById("del_box").removeAttribute("id");
+                        }
+                        e.target.id = "del_box";
+                        var ab = document.getElementById("del_box");
+
+                        var xy_div = document.getElementById(ab.style.left.substring(0,ab.style.left.length-2)+ab.style.top.substring(0,ab.style.top.length-2))
+                        if(xy_div !== null)
+                        {
+                            xy_div.removeAttribute("id");
+                            document.body.removeChild(xy_div);
+                        }
+                        document.body.removeChild(ab);
+                    }
+                }
+            };
+        </script>
+    </div>
+    <br>
+    <!-- <input type="text" name="coor" placeholder="坐标" readonly="true" id="x_y" style="width: 800px"><br> -->
+    <!-- <div id="xycoordinates"></div> -->
+
+
+</body>
+</html>
+

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- 导入的videojs是7.0版本以上的，集成VHS协议库，可播放HLS流媒体视频 -->
+  <!-- <link rel="stylesheet" href="../videolib/css/video-js.min.css"> -->
+  <!-- <script src="../videolib/js/video.min.js"></script> -->
+  <!-- 引入的videojs-flash.js插件主要是为播放rtmp视频流-->
+  <!-- <script src="../videolib/videojs-flash.min.js"></script> -->
+  <style>
+      #cartoonRTMP{
+        width: 560px;
+        height: 460px;
+      }
+      #vlc{
+        width: 575px !important;
+        height: 485px !important;
+      }
+  </style>
+</head>
+<body>
+  <div id="cartoonRTMP">
+    
+  </div>
+  
+  <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="../../static/jquery-1.7.1.min.js"></script>
+  <script type="text/javascript">
+    var cameraids = "", bearer = "", httpurl = "",bifocalhttpads="";
+    var rtmpurl = "";
+    var timer;
+    bearer = window.top.top.sessionStorage.getItem("brearer");
+    httpurl = window.top.top.sessionStorage.getItem("httpurl");
+    bifocalhttpads = window.top.top.sessionStorage.getItem("bifocalhttpads");
+    var Bearers = "Bearer " + bearer;
+    function addScriptTag(src){
+      var script = document.createElement("script");
+      script.setAttribute("type","text/javascript");
+      script.src = src;
+      document.body.appendChild(script);
+    }
+
+    window.onload = function(){
+      console.log(window.top.sessionStorage.getItem("cameraid"),'获取直播流需要的摄像头id');
+      if(window.top.sessionStorage.getItem("cameraid") !== "undefined" || window.top.sessionStorage.getItem("cameraid") !== "null"){
+        cameraids = window.top.sessionStorage.getItem("cameraid");
+        $.ajax({  //--------------------------rtmp推流
+          url: httpurl + "/col/frared/" + cameraids,
+          type:"get",
+          dataType : 'json',
+          beforeSend: function(xhr) {
+              xhr.setRequestHeader("Authorization", Bearers);
+          },
+          headers:{'Content-Type':'application/json;charset=utf8','Authorization':Bearers},
+          success : function(data) {
+            if(data.code == 200){
+              rtmpurl = data.data.publishUrl; 
+              var theHtml="";
+              console.log(data,"直播流-------------------",rtmpurl);
+              //   if(rtmpurl){
+              //       theHtml = '<object type="application/x-vlc-plugin" pluginspage="http://www.videolan.org/" id="vlc" events="false" width="600" height="280">'+
+              //       '<param name="mrl" value="' + rtmpurl + '" />'+
+              //       '<param name="volume" value="50" />'+
+              //       '<param name="autoplay" value="true" />'+
+              //       '<param name="loop" value="false" />'+
+              //       '<param name="play" id="isPlay" value="true" />'+
+              //       '<param name="fullscreen" value="false" />'+
+              //       '<param name="controls" value="false" />'+
+              //   '</object>';
+              //   }else{
+              //       theHtml = "暂无视频连接";
+              //   }
+              //   document.getElementById("cartoonRTMP").innerHTML = theHtml;
+              //   getheart();
+              //   timer = setInterval(function(){
+              //     getheart();
+              //   },1000*60)
+
+              // 最新调用c++;
+              addScriptTag("http://"+bifocalhttpads+"?"+"CmdType=double_combin_start&cameraId="+data.data.cameraId
+                    +"&heightEnd="+data.data.heightEnd+"&heightStart="+data.data.heightStart+"&publishHeight="+data.data.publishHeight+"&publishUrl="+data.data.publishUrl
+                    +"&publishWidth="+data.data.publishWidth+"&widthEnd="+data.data.widthEnd+"&widthStart="+data.data.widthStart+"&updatetime="+new Date().getTime());
+              if(rtmpurl){
+                  theHtml = '<object type="application/x-vlc-plugin" pluginspage="http://www.videolan.org/" id="vlc" events="false" width="600" height="280">'+
+                  '<param name="mrl" value="' + rtmpurl + '" />'+
+                  '<param name="volume" value="50" />'+
+                  '<param name="autoplay" value="true" />'+
+                  '<param name="loop" value="false" />'+
+                  '<param name="play" id="isPlay" value="true" />'+
+                  '<param name="fullscreen" value="false" />'+
+                  '<param name="controls" value="false" />'+
+              '</object>';
+              }else{
+                  theHtml = "暂无视频连接";
+              }
+              document.getElementById("cartoonRTMP").innerHTML = theHtml;
+              getheart();
+              timer = setInterval(function(){
+                getheart();
+              },1000*60)
+            }else if(data.code == 500){
+              stopheart();
+            }
+          }
+        })
+      }else if(window.top.sessionStorage.getItem("cameraid") === "undefined"){
+        stopheart();
+        // window.sessionStorage.setItem("timer",null);
+        // window.clearInterval(window.setInterval);
+      }
+    }
+    function getheart(){
+      console.log("start",'---start---');
+      $.ajax({  //--------------------------心跳
+        url: httpurl + "/col/frared/heart/" + cameraids,
+        type:"get",
+        dataType : 'json',
+        beforeSend: function(xhr) {
+            xhr.setRequestHeader("Authorization", Bearers);
+        },
+        headers:{'Content-Type':'application/json;charset=utf8','Authorization':Bearers},
+        success : function(data) {
+          console.log(data,'-------heart---------');
+          // 最新调用c++;
+          addScriptTag("http://"+bifocalhttpads+"?"+"CmdType=double_combin_heartbeat&cameraId="+data.data.cameraId+"&cmdType="+data.data.cmdType+"&updatetime="+new Date().getTime());
+        }
+      })
+    }
+    function stopheart(){
+      console.log("stop",'---stop-----');
+      clearInterval(timer);
+    }
+
+  </script>
+</body>
+
+</html>

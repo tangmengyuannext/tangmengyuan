@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title></title>
+
+<link rel="stylesheet" href="styles/jquery.imageLabel.min.css">
+<link rel="stylesheet" href="styles/edit.css">
+
+</head>
+<style>
+* {
+	padding: 0;
+	margin: 0
+}
+.top-tab {
+	background-color: #333;
+	padding: 10px;
+	margin-bottom: 50px
+}
+.top-tab a {
+	display: flex;
+	align-items: center;
+	color: #fff
+}
+#imgform {
+	margin: 0 auto;
+	width: 400px;
+}
+</style>
+<body>
+
+<form action="" id="imgform">
+  <p style="margin-top:10px;">图片链接:<input type="text" name="src" class="imgurl" value="" style="display: inline-block;width: 85%;height:30px;"></p>
+  <button class="addpic" type="submit" disabled="disabled" style="margin-top:10px;padding:10px;width:100%">点击标注图片</button>
+</form>
+<script src="scripts/jquery.js"></script>
+<script src="scripts/jquery.imageLabel.min.js"></script>
+<script>
+    var bgimg = "";
+    $(document).ready(function(){
+        console.log(window.top.sessionStorage.getItem("biaozhuimgurl"),"------图标url");
+        bgimg = window.top.sessionStorage.getItem("biaozhuimgurl");
+        $(".imgurl").val(bgimg);
+    })
+    $(function() {
+        $(".right-select-box");
+        $(".addpic").removeAttr("disabled"), $("#imgform").submit(function(t) {
+            t.preventDefault();
+            window.c = imageLabel({
+                img: $("[name=src]").val(),
+                editPop: !0,
+                close: function(t) {
+                    return t.length && alert(JSON.stringify(t)), !0;
+                    location.reload();
+                },
+                clickArea: function() {},
+                edit: function(t) {},
+                startArea: function() {},
+                confirm: function(t) {
+                    window.parent.postMessage({parentval:t},'*');
+                    window.sessionStorage.setItem("biaozhuxy",JSON.stringify(t));
+					// console.log(t,'t-------------t');
+                    return t.length && alert(JSON.stringify(t)), !0;
+                    // console.log(t,'t1-------------t1');
+                    location.reload();
+                }
+            })
+        })
+    })
+</script>
+
+<div style="text-align:center;margin:50px 0; font:normal 14px/24px 'MicroSoft YaHei';">
+</div>
+</body>
+</html>
